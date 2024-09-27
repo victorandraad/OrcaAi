@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');         // Nome da fórmula
             $table->text('formula');        // A fórmula em si, por exemplo: {{altura}} * ferro + {{largura}} * Pi
+            $table->foreignId('user_id')->constrained('users');
             $table->timestamps();
         });
     }

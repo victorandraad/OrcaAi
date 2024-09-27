@@ -13,72 +13,63 @@ class FormulaController extends Controller
         $search = $request->input('search');
         $perPage = 10; // Número de fórmulas por página
 
-        $formulas = Formula::query()
+        $formulas = Formula::where('user_id', auth()->id()) // Query the Formula model directly
             ->when($search, function ($query, $search) {
                 return $query->where('name', 'like', '%' . $search . '%');
             })
             ->paginate($perPage)
             ->withQueryString();
-
+            
         return view('formulas.index', compact('formulas'));
+    }
+
+    public function show($id)
+    {
+        $formula = auth()->user()->formulas->findOrFail($id);
+        return compact('formula');
     }
 
     public function create()
     {
-        $materials = Material::all();
+        $materials = auth()->user()->materials->all();
         return view('formulas.create', compact('materials'));
     }
 
     public function store(Request $request)
     {
-        $allowedOperators = ['+', '-', '*', '/', '%'];
-        $formulaPattern = '/^(\{[a-zA-Z0-9_]+\}|\d+(\.\d+)?|' . preg_quote(implode('|', $allowedOperators), '/') . '|\s)+$/';
-
         $request->validate([
-            'name' => 'required',
-            'formula' => [
-                'required',
-                'regex:' . $formulaPattern,
-                function ($attribute, $value, $fail) {
-                    $variables = [];
-                    preg_match_all('/\{([a-zA-Z0-9_]+)\}/', $value, $matches);
-                    foreach ($matches[1] as $variable) {
-                        if (in_array($variable, $variables)) {
-                            $fail('Duplicate variable name: {' . $variable . '}');
-                        }
-                        $variables[] = $variable;
-                    }
-                },
-            ],
-            'materials' => 'required|array',
+            'name' => 'required|string|max:255',
+            'formula' => 'required|string',
         ]);
 
-        $formula = new Formula();
-        $formula->name = $request->name;
-        $formula->formula = $request->formula;
-        $formula->save();
+        // Create a new formula and set the user_id
+        $formula = auth()->user()->formulas()->create([
+            'name' => $request->input('name'),  
+            'formula' => $request->input('formula'),
+        ]);
+        
+        $formula->save(); // Save the formula
 
-        $formula->materials()->sync($request->materials);
-
-        return redirect()->route('formulas.index');
+        return redirect()->route('formulas.index')->with('success', 'Formula created successfully.');
     }
 
     public function edit($id)
     {
-        $formula = Formula::findOrFail($id);
-        return view('formulas.edit', compact('formula'));
+        $formula = auth()->user()->formulas->findOrFail($id);
+        $materials = auth()->user()->materials->all();
+        return view('formulas.edit', compact('formula', 'materials'));
     }
 
     public function update(Request $request, $id)
     {
-        $formula = Formula::findOrFail($id);
+        $formula = auth()->user()->formulas->findOrFail($id);
         $formula->update($request->all());
         return redirect()->route('formulas.index');
     }
 
     public function destroy($id)
     {
-        $formula = Formula::findOrFail($id);
+        $formula = auth()->user()->formulas->findOrFail($id);
         $formula->delete();
         return redirect()->route('formulas.index');
     }

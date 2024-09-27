@@ -4,14 +4,12 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\FormulaController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\BudgetController;
 
 Route::get('/', function () {
     return view('welcome');
 });
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -34,6 +32,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/formulas/{id}/edit', [FormulaController::class, 'edit'])->name('formulas.edit'); // Editar fórmula
     Route::put('/formulas/{id}', [FormulaController::class, 'update'])->name('formulas.update'); // Atualizar fórmula
     Route::delete('/formulas/{id}', [FormulaController::class, 'destroy'])->name('formulas.destroy'); // Deletar fórmula
+    Route::get('/formulas/{id}', [FormulaController::class, 'show'])->name('formulas.show'); // Mostrar fórmula
+
+    // Rotas para Orçamentos
+    Route::get('/home', [BudgetController::class, 'create'])->name('budget.create'); // Formulário para criar orçamento
+    Route::post('/budget', [BudgetController::class, 'store'])->name('budget.store'); // Salvar orçamento
 });
 
 

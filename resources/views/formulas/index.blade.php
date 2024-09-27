@@ -24,6 +24,7 @@
                         @foreach ($formulas as $formula)
                             <div class="bg-white rounded-lg shadow-md p-6">
                                 <h2 class="text-xl font-semibold mb-2">{{ $formula->name }}</h2>
+                                <p class="text-gray-600 mb-4">{{ $formula->formula }}</p>
                                 <div class="flex justify-end">
                                     <a href="{{ route('formulas.edit', $formula) }}" class="text-blue-500 hover:text-blue-700 mr-4">Editar</a>
                                     <form action="{{ route('formulas.destroy', $formula) }}" method="POST" onsubmit="return confirm('Tem certeza de que deseja excluir esta fórmula?')">

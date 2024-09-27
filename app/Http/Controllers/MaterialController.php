@@ -12,7 +12,7 @@ class MaterialController extends Controller
         $search = $request->input('search');
         $perPage = 10; // Número de materiais por página
 
-        $materials = Material::query()
+        $materials = Material::where('user_id', auth()->id())
             ->when($search, function ($query, $search) {
                 return $query->where('name', 'like', '%' . $search . '%');
             })
@@ -37,10 +37,12 @@ class MaterialController extends Controller
             'unit' => 'required|in:' . implode(',', $validUnits),
         ]);
 
-        $material = new Material();
-        $material->name = $request->name;
-        $material->price = $request->price;
-        $material->unit = $request->unit;
+        $material = auth()->user()->materials()->create([
+            'name' => $request->input('name'),
+            'price' => $request->input('price'),
+            'unit' => $request->input('unit'),
+        ]);
+
         $material->save();
 
         return redirect()->route('materials.index');

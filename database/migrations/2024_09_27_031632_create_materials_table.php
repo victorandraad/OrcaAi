@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');           // Nome do material
             $table->decimal('price', 8, 2);   // Preço do material
             $table->string('unit');           // Unidade de medida (ex: metro, quilo)
+            $table->foreignId('user_id')->constrained('users');
             $table->timestamps();
         });
     }
